@@ -5,6 +5,7 @@ node_modules/
 
 # Expo
 .expo/
+.idea/
 dist/
 web-build/
 expo-env.d.ts
@@ -31,8 +32,19 @@ yarn-error.*
 
 # local env files
 .env*.local
+*.env
+.env
+.env.*
+eas.json
 
 # typescript
 *.tsbuildinfo
 
 app-example
+
+build/
+DerivedData/
+
+*.DS_Store
+.AppleDouble
+.LSOverride
