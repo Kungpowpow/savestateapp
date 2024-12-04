@@ -1,5 +1,0 @@
-npx expo start
-eas build --platform ios --auto-submit
-
-
-npm i -g eas-cli
