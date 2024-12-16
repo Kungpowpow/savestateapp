@@ -1,41 +1,57 @@
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useIGDBStore } from '../store/igdbStore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '../context/auth';
+import { useIGDBToken } from '../hooks/useIGDBToken';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const { getStoredTokens, fetchAndStoreTokens, isTokenExpired } = useIGDBStore();
+const queryClient = new QueryClient();
 
-  // Initialize IGDB tokens during app load
+function RootLayoutContent() {
+  const { isLoading, error, data } = useIGDBToken();
+  
   useEffect(() => {
-    const initializeTokens = async () => {
+    const initializeApp = async () => {
       try {
-        const storedTokens = await getStoredTokens();
-        
-        // Fetch new tokens if none exist or if current token is expired
-        if (!storedTokens || (storedTokens && isTokenExpired(storedTokens))) {
-          await fetchAndStoreTokens();
+        if (!isLoading && (data || error)) {
+          await SplashScreen.hideAsync();
         }
-        
-        // Hide splash screen after tokens are initialized
-        await SplashScreen.hideAsync();
       } catch (error) {
-        console.error('Error initializing IGDB tokens:', error);
-        // Still hide splash screen even if token initialization fails
-        await SplashScreen.hideAsync();
+        console.error('Error hiding splash screen:', error);
       }
     };
 
-    initializeTokens();
-  }, []);
+    initializeApp();
+  }, [isLoading, data, error]);
+
+  if (isLoading) {
+    return null; // Or a loading component if needed
+  }
 
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
-    </Stack>
+    <AuthProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="(auth)" 
+          options={{ 
+            presentation: 'modal',
+            headerShown: false 
+          }} 
+        />
+        <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+      </Stack>
+    </AuthProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootLayoutContent />
+    </QueryClientProvider>
   );
 }
 

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Text, View, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, Pressable } from 'react-native';
 import { Colors } from '../../../constants/Colors';
-import { useIGDBStore } from '../../../store/igdbStore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
+import { useIGDBToken } from '../../../hooks/useIGDBToken';
 
 interface Game {
   id: number;
@@ -18,7 +18,7 @@ export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(false);
-  const { tokens, fetchAndStoreTokens } = useIGDBStore();
+  const { data: tokens, refetch: refetchTokens } = useIGDBToken();
 
   const searchGames = async (query: string) => {
     if (!query.trim() || !tokens) return;
@@ -38,13 +38,18 @@ export default function SearchScreen() {
               where version_parent = null;`
       });
 
+      if (!response.ok) {
+        if (response.status === 401) {
+          await refetchTokens();
+          return;
+        }
+        throw new Error('Failed to fetch games');
+      }
+
       const data = await response.json();
       setGames(data);
     } catch (error) {
       console.error('Error fetching games:', error);
-      if (error instanceof Error && error.message.includes('401')) {
-        await fetchAndStoreTokens();
-      }
     } finally {
       setLoading(false);
     }

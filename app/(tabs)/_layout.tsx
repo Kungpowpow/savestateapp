@@ -1,12 +1,12 @@
-import { Tabs } from "expo-router";
-import CustomTabBar from "../components/CustomTabBar";
-import { Colors }  from "../../constants/Colors";
+import { Tabs, useRouter } from 'expo-router';
+import { useAuth } from '../../context/auth';
+import CustomTabBar from '../components/CustomTabBar';
+import { Colors } from '../../constants/Colors';
 
-//todo: make the search bar look better.
-//  Add a X icon to search that clears the active search text.
-//  List recently viewed games.
+export default function TabsLayout() {
+  const { session } = useAuth();
+  const router = useRouter();
 
-export default function RootLayout() {
   return (
     <Tabs
       initialRouteName="(trending)"
@@ -19,38 +19,60 @@ export default function RootLayout() {
         headerTintColor: Colors.color5,
       }}
     >
-      <Tabs.Screen name="(trending)" 
+      <Tabs.Screen 
+        name="(trending)" 
         options={{
           title: 'Trending',
         }} 
       />
-      <Tabs.Screen name="(inventory)"
+      <Tabs.Screen 
+        name="(inventory)"
         options={{
           title: 'Inventory',
-        }} 
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!session) {
+              e.preventDefault();
+              router.push('/(auth)/login');
+            }
+          },
+        }}
       />
       <Tabs.Screen 
         name="(search)" 
         options={{
           title: 'Search',
-          // tabBarStyle: { display: 'none' },
         }}
       />
-      <Tabs.Screen name="(activity)"
+      <Tabs.Screen 
+        name="(activity)"
         options={{
           title: 'Activity',
-        }} 
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!session) {
+              e.preventDefault();
+              router.push('/(auth)/login');
+            }
+          },
+        }}
       />
-      <Tabs.Screen name="(profile)" 
+      <Tabs.Screen 
+        name="(profile)" 
         options={{
           title: 'Profile',
-        }} 
+        }}
+        listeners={{
+          tabPress: (e) => {
+            if (!session) {
+              e.preventDefault();
+              router.push('/(auth)/login');
+            }
+          },
+        }}
       />
-      {/* <Tabs.Screen name="(inventory, search)" 
-        options={{
-          href: null,
-        }} 
-      /> */}
     </Tabs>
   );
 }
