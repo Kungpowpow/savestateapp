@@ -2,8 +2,11 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '../context/auth';
-import { useIGDBToken } from '../hooks/useIGDBToken';
+import { AuthProvider } from '@/context/auth';
+import { SearchProvider } from '@/context/search';
+import { FollowingProvider } from '@/context/following';
+import { useIGDBToken } from '@/hooks/useIGDBToken';
+import { useReactQueryDevTools } from '@dev-plugins/react-query';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -11,6 +14,7 @@ const queryClient = new QueryClient();
 
 function RootLayoutContent() {
   const { isLoading, error, data } = useIGDBToken();
+  useReactQueryDevTools(queryClient);
   
   useEffect(() => {
     const initializeApp = async () => {
@@ -32,17 +36,21 @@ function RootLayoutContent() {
 
   return (
     <AuthProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen 
-          name="(auth)" 
-          options={{ 
-            presentation: 'modal',
-            headerShown: false 
-          }} 
-        />
-        <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-      </Stack>
+      <FollowingProvider>
+        <SearchProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="(auth)" 
+              options={{ 
+                presentation: 'modal',
+                headerShown: false 
+              }} 
+            />
+            <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+          </Stack>
+        </SearchProvider>
+      </FollowingProvider>
     </AuthProvider>
   );
 }

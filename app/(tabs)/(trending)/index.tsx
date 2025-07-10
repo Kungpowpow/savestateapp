@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { FlatList, SafeAreaView, StyleSheet, View } from 'react-native';
-import { generateColor } from "../../../utils";
+import { generateColor } from "@/utils";
 
 export default function TrendingScreen() {
   const colors = useMemo(() => [...new Array(20)].map(() => generateColor()), []);

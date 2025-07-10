@@ -48,5 +48,3 @@ DerivedData/
 *.DS_Store
 .AppleDouble
 .LSOverride
-
-laravel/

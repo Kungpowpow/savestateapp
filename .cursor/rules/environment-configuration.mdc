@@ -1,0 +1,99 @@
+---
+description: When using env variables
+alwaysApply: false
+---
+# Environment Configuration
+
+## API URL Configuration
+
+All API endpoints in this project must use `process.env.EXPO_PUBLIC_API_URL` for environment-based configuration.
+
+### Required Pattern
+
+```typescript
+// ✅ Correct - Use environment variable with fallback
+const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://savestate.social/api'}/endpoint`);
+
+// ❌ Incorrect - Hardcoded URLs
+const response = await fetch('https://savestate.social/api/endpoint');
+const response = await fetch('http://savestate.test/api/endpoint');
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EXPO_PUBLIC_API_URL` | Base URL for all API calls | `https://savestate.social/api` |
+
+### Setup Instructions
+
+**Local Development**: Create a `.env` file in the root directory:
+```bash
+EXPO_PUBLIC_API_URL=http://savestate.test/api
+```
+
+**Production**: Uses `https://savestate.social/api` as default when no environment variable is set.
+
+### Key Files Using API URLs
+
+- [lib/api.ts](mdc:savestateapp/lib/api.ts) - Main API configuration
+- [hooks/useGameRating.ts](mdc:savestateapp/hooks/useGameRating.ts) - Rating API calls
+- [hooks/useGameLists.ts](mdc:savestateapp/hooks/useGameLists.ts) - Game list management
+- [hooks/useIGDBToken.ts](mdc:savestateapp/hooks/useIGDBToken.ts) - IGDB token fetching
+- [hooks/useCustomLists.ts](mdc:savestateapp/hooks/useCustomLists.ts) - Custom list operations
+- [hooks/useUserLists.ts](mdc:savestateapp/hooks/useUserLists.ts) - User list queries
+- [hooks/useGameReview.ts](mdc:savestateapp/hooks/useGameReview.ts) - Game review operations
+
+### Important Notes
+
+- Environment variables must be prefixed with `EXPO_PUBLIC_` to be accessible in React Native
+- The `.env` file is ignored by git for security
+- Always provide a fallback to the production URL when using `process.env.EXPO_PUBLIC_API_URL`
+- Never hardcode API URLs in the codebase# Environment Configuration
+
+## API URL Configuration
+
+All API endpoints in this project must use `process.env.EXPO_PUBLIC_API_URL` for environment-based configuration.
+
+### Required Pattern
+
+```typescript
+// ✅ Correct - Use environment variable with fallback
+const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://savestate.social/api'}/endpoint`);
+
+// ❌ Incorrect - Hardcoded URLs
+const response = await fetch('https://savestate.social/api/endpoint');
+const response = await fetch('http://savestate.test/api/endpoint');
+```
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EXPO_PUBLIC_API_URL` | Base URL for all API calls | `https://savestate.social/api` |
+
+### Setup Instructions
+
+**Local Development**: Create a `.env` file in the root directory:
+```bash
+EXPO_PUBLIC_API_URL=http://savestate.test/api
+```
+
+**Production**: Uses `https://savestate.social/api` as default when no environment variable is set.
+
+### Key Files Using API URLs
+
+- [lib/api.ts](mdc:savestateapp/lib/api.ts) - Main API configuration
+- [hooks/useGameRating.ts](mdc:savestateapp/hooks/useGameRating.ts) - Rating API calls
+- [hooks/useGameLists.ts](mdc:savestateapp/hooks/useGameLists.ts) - Game list management
+- [hooks/useIGDBToken.ts](mdc:savestateapp/hooks/useIGDBToken.ts) - IGDB token fetching
+- [hooks/useCustomLists.ts](mdc:savestateapp/hooks/useCustomLists.ts) - Custom list operations
+- [hooks/useUserLists.ts](mdc:savestateapp/hooks/useUserLists.ts) - User list queries
+- [hooks/useGameReview.ts](mdc:savestateapp/hooks/useGameReview.ts) - Game review operations
+
+### Important Notes
+
+- Environment variables must be prefixed with `EXPO_PUBLIC_` to be accessible in React Native
+- The `.env` file is ignored by git for security
+- Always provide a fallback to the production URL when using `process.env.EXPO_PUBLIC_API_URL`
+- Never hardcode API URLs in the codebase

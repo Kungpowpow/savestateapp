@@ -1,34 +1,26 @@
 import React from 'react'
-import { Alert, StyleSheet, View, AppState } from 'react-native'
-import { supabase } from '../../lib/supabase'
+import { Alert, StyleSheet, View, Text } from 'react-native'
 import { Button, Input } from '@rneui/themed'
 import { useState } from 'react'
 import { router } from 'expo-router'
-import { useAuth } from '../../context/auth'
-
-// Tells Supabase Auth to continuously refresh the session automatically if
-// the app is in the foreground
-AppState.addEventListener('change', (state) => {
-  if (state === 'active') {
-    supabase.auth.startAutoRefresh()
-  } else {
-    supabase.auth.stopAutoRefresh()
-  }
-})
+import { useAuth } from '@/context/auth'
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { login, loading, error } = useAuth()
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
     try {
-      await signIn(email, password)
+      await login(email, password)
       router.replace('/(tabs)')
-    } catch (error) {
-      console.error(error)
-      // Handle error (show error message to user)
+    } catch (e: any) {
+      const errorMessage = e.response?.data?.message || e.message || 'Login failed';
+      Alert.alert('Login Error', errorMessage);
     }
   }
 
@@ -55,11 +47,13 @@ export default function LoginScreen() {
           autoCapitalize={'none'}
         />
       </View>
+      {error && <Text style={styles.errorText}>{error}</Text>}
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button 
           title="Sign in" 
           disabled={loading} 
           onPress={handleLogin} 
+          loading={loading}
         />
       </View>
       <View style={styles.verticallySpaced}>
@@ -75,8 +69,9 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
-    padding: 12,
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
   },
   verticallySpaced: {
     paddingTop: 4,
@@ -85,5 +80,10 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 10,
   },
 }) 

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Text, View, StyleSheet, TextInput, FlatList, Image, ActivityIndicator, Pressable } from 'react-native';
-import { Colors } from '../../../constants/Colors';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Colors } from '@/constants/Colors';
 import { Link } from 'expo-router';
-import { useIGDBToken } from '../../../hooks/useIGDBToken';
+import { useIGDBToken } from '@/hooks/useIGDBToken';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Game {
   id: number;
@@ -12,18 +12,53 @@ interface Game {
     url: string;
   };
   rating?: number;
+  first_release_date?: number;
 }
 
-export default function SearchScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [games, setGames] = useState<Game[]>([]);
-  const [loading, setLoading] = useState(false);
-  const { data: tokens, refetch: refetchTokens } = useIGDBToken();
+interface GameCategory {
+  title: string;
+  subtitle: string;
+  icon: string;
+  games: Game[];
+  loading: boolean;
+}
 
-  const searchGames = async (query: string) => {
-    if (!query.trim() || !tokens) return;
+export default function SearchIndex() {
+  const { data: tokens, refetch: refetchTokens } = useIGDBToken();
+  const [categories, setCategories] = useState<GameCategory[]>([
+    {
+      title: 'Trending Games',
+      subtitle: 'What\'s hot right now',
+      icon: 'trending-up',
+      games: [],
+      loading: true,
+    },
+    {
+      title: 'Popular This Week',
+      subtitle: 'Most played games',
+      icon: 'star',
+      games: [],
+      loading: true,
+    },
+    {
+      title: 'Top Rated',
+      subtitle: 'Highest rated games',
+      icon: 'trophy',
+      games: [],
+      loading: true,
+    },
+    {
+      title: 'Recently Released',
+      subtitle: 'New games this month',
+      icon: 'calendar',
+      games: [],
+      loading: true,
+    },
+  ]);
+
+  const fetchGames = async (categoryIndex: number, query: string) => {
+    if (!tokens) return;
     
-    setLoading(true);
     try {
       const response = await fetch('https://api.igdb.com/v4/games', {
         method: 'POST',
@@ -32,12 +67,9 @@ export default function SearchScreen() {
           'Client-ID': tokens.client_id,
           'Authorization': `Bearer ${tokens.access_token}`,
         },
-        body: `search "${query}";
-              fields name,rating,cover.url;
-              limit 20;
-              where version_parent = null;`
+        body: query
       });
-
+      
       if (!response.ok) {
         if (response.status === 401) {
           await refetchTokens();
@@ -45,15 +77,41 @@ export default function SearchScreen() {
         }
         throw new Error('Failed to fetch games');
       }
-
+      
       const data = await response.json();
-      setGames(data);
+      setCategories(prev => prev.map((cat, index) => 
+        index === categoryIndex 
+          ? { ...cat, games: data, loading: false }
+          : cat
+      ));
     } catch (error) {
       console.error('Error fetching games:', error);
-    } finally {
-      setLoading(false);
+      setCategories(prev => prev.map((cat, index) => 
+        index === categoryIndex 
+          ? { ...cat, loading: false }
+          : cat
+      ));
     }
   };
+
+  useEffect(() => {
+    if (tokens) {
+      // Trending games (based on rating and popularity)
+      fetchGames(0, 'fields name,rating,cover.url,first_release_date; where version_parent = null & rating != null; sort rating desc; limit 10;');
+      
+      // Popular this week (based on release date and rating)
+      const now = Math.floor(Date.now() / 1000);
+      const weekAgo = now - (7 * 24 * 60 * 60);
+      fetchGames(1, `fields name,rating,cover.url,first_release_date; where version_parent = null & first_release_date >= ${weekAgo}; sort rating desc; limit 10;`);
+      
+      // Top rated games
+      fetchGames(2, 'fields name,rating,cover.url,first_release_date; where version_parent = null & rating != null; sort rating desc; limit 10;');
+      
+      // Recently released (last 30 days)
+      const monthAgo = now - (30 * 24 * 60 * 60);
+      fetchGames(3, `fields name,rating,cover.url,first_release_date; where version_parent = null & first_release_date >= ${monthAgo}; sort first_release_date desc; limit 10;`);
+    }
+  }, [tokens]);
 
   const renderGameItem = ({ item }: { item: Game }) => (
     <Link
@@ -77,56 +135,63 @@ export default function SearchScreen() {
           </View>
         )}
       </View>
-      <View style={styles.gameInfo}>
-        <Text style={styles.gameName} numberOfLines={2}>{item.name}</Text>
-        {item.rating ? (
-          <View style={styles.ratingContainer}>
-            <Text style={styles.ratingLabel}>Rating: </Text>
-            <Text style={styles.gameRating}>{Math.round(item.rating)}%</Text>
-          </View>
-        ) : (
-          <Text style={styles.noRating}>No rating available</Text>
-        )}
-      </View>
+      <Text style={styles.gameName} numberOfLines={2}>{item.name}</Text>
+      {item.rating && (
+        <View style={styles.ratingContainer}>
+          <Ionicons name="star" size={12} color={Colors.color2} />
+          <Text style={styles.ratingText}>{Math.round(item.rating)}%</Text>
+        </View>
+      )}
     </Link>
   );
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search games..."
-          placeholderTextColor={Colors.color5 + '80'}
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={() => searchGames(searchQuery)}
-          returnKeyType="search"
-          autoCorrect={false}
-        />
+  const renderCategory = ({ item, index }: { item: GameCategory; index: number }) => (
+    <View style={styles.categoryContainer}>
+      <View style={styles.categoryHeader}>
+        <View style={styles.categoryTitleContainer}>
+          <Ionicons name={item.icon as any} size={24} color={Colors.color2} />
+          <View style={styles.categoryTextContainer}>
+            <Text style={styles.categoryTitle}>{item.title}</Text>
+            <Text style={styles.categorySubtitle}>{item.subtitle}</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.seeAllButton}>
+          <Text style={styles.seeAllText}>See All</Text>
+          <Ionicons name="chevron-forward" size={16} color={Colors.color2} />
+        </TouchableOpacity>
       </View>
-
-      {loading ? (
+      
+      {item.loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.color5} />
-          <Text style={styles.loadingText}>Searching games...</Text>
+          <Text style={styles.loadingText}>Loading...</Text>
         </View>
       ) : (
         <FlatList
-          data={games}
+          data={item.games}
           renderItem={renderGameItem}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.gameList}
-          contentContainerStyle={styles.gameListContent}
+          keyExtractor={(game) => game.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalList}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {searchQuery ? 'No games found' : 'Search for your favorite games'}
-              </Text>
+              <Text style={styles.emptyText}>No games available</Text>
             </View>
           }
         />
       )}
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={categories}
+        renderItem={renderCategory}
+        keyExtractor={(item, index) => index.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      />
     </View>
   );
 }
@@ -135,57 +200,66 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.color4,
-    // paddingBottom: 100
   },
-  searchContainer: {
-    padding: 16,
-    backgroundColor: Colors.color3,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.color5 + '20',
-  },
-  searchInput: {
-    backgroundColor: Colors.color4,
-    padding: 16,
-    borderRadius: 12,
-    color: Colors.color5,
-    fontSize: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: Colors.color5,
-    marginTop: 12,
-    fontSize: 16,
-  },
-  gameList: {
-    flex: 1,
-  },
-  gameListContent: {
-    padding: 16,
+  contentContainer: {
     paddingBottom: 70,
   },
-  gameItem: {
+  categoryContainer: {
+    marginBottom: 24,
+  },
+  categoryHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  categoryTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  categoryTextContainer: {
+    marginLeft: 8,
+    flex: 1,
+  },
+  categoryTitle: {
+    color: Colors.color5,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  categorySubtitle: {
+    color: Colors.color5 + '80',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  seeAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  seeAllText: {
+    color: Colors.color2,
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  horizontalList: {
+    paddingHorizontal: 8,
+  },
+  gameItem: {
+    width: 120,
+    marginHorizontal: 8,
     backgroundColor: Colors.color3,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 2,
   },
   gameCoverContainer: {
-    width: 120,
+    width: '100%',
     height: 160,
   },
   gameCover: {
@@ -204,49 +278,42 @@ const styles = StyleSheet.create({
     color: Colors.color5 + '60',
     fontSize: 12,
   },
-  gameInfo: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'space-between',
-  },
   gameName: {
     color: Colors.color5,
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    lineHeight: 24,
+    fontSize: 14,
+    fontWeight: '600',
+    padding: 8,
+    paddingBottom: 4,
+    lineHeight: 18,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.color4,
-    padding: 8,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
-  ratingLabel: {
-    color: Colors.color5 + '80',
-    fontSize: 14,
-  },
-  gameRating: {
+  ratingText: {
     color: Colors.color5,
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: '600',
+    marginLeft: 4,
   },
-  noRating: {
-    color: Colors.color5 + '60',
-    fontSize: 14,
-    fontStyle: 'italic',
-  },
-  emptyContainer: {
-    flex: 1,
+  loadingContainer: {
+    height: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 40,
+  },
+  loadingText: {
+    color: Colors.color5 + '80',
+    fontSize: 14,
+  },
+  emptyContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   emptyText: {
-    color: Colors.color5 + '80',
-    fontSize: 16,
-    textAlign: 'center',
+    color: Colors.color5 + '60',
+    fontSize: 14,
   },
 });

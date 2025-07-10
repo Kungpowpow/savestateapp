@@ -1,35 +1,38 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../../context/auth';
+import { useAuth } from '@/context/auth';
 import { Button } from '@rneui/themed';
 
 export default function Profile() {
-  const { session, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!session) {
+    if (!user) {
       router.push('/(auth)/login');
     }
-  }, [session]);
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
+      router.push('/(auth)/login');
     } catch (error) {
       console.error('Error signing out:', error);
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
     }
   };
 
-  if (!session) {
+  if (!user) {
     return null;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Email: {session.user.email}</Text>
-      <Text style={styles.text}>User ID: {session.user.id}</Text>
+      <Text style={styles.text}>Name: {user.name}</Text>
+      <Text style={styles.text}>Email: {user.email}</Text>
+      <Text style={styles.text}>User ID: {user.id}</Text>
       <Button
         title="Sign Out"
         onPress={handleSignOut}

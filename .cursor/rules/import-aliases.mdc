@@ -1,0 +1,84 @@
+---
+description: When creating and linking files
+alwaysApply: false
+---
+# Import Alias Guidelines
+
+Always use the `@` alias when importing files in the savestateapp project. This alias points to the project root and provides cleaner, more maintainable import paths.
+
+## Usage Examples
+
+### ✅ Correct Usage
+```typescript
+import { Colors } from "@/constants/Colors";
+import InventoryHeader from "@/components/headers/InventoryHeader";
+import { useGameLists } from "@/hooks/useGameLists";
+import { GameCard } from "@/components/GameCard";
+import { auth } from "@/context/auth";
+```
+
+### ❌ Avoid Relative Paths
+```typescript
+// Don't use relative paths like this:
+import { Colors } from "../../constants/Colors";
+import InventoryHeader from "../../components/headers/InventoryHeader";
+```
+
+## Benefits
+
+1. **Cleaner imports**: No need for complex relative paths with multiple `../`
+2. **Easier refactoring**: Moving files doesn't break import paths
+3. **Better readability**: Clear indication of where files are located
+4. **Consistency**: All imports follow the same pattern
+
+## Common Import Patterns
+
+- Components: `@/components/ComponentName`
+- Hooks: `@/hooks/useHookName`
+- Types: `@/types/TypeName`
+- Constants: `@/constants/ConstantName`
+- Context: `@/context/ContextName`
+- Store: `@/store/StoreName`
+- Utils: `@/utils/UtilName`
+
+This rule applies to all TypeScript/JavaScript files in the savestateapp project.
+# Import Alias Guidelines
+
+Always use the `@` alias when importing files in the savestateapp project. This alias points to the project root and provides cleaner, more maintainable import paths.
+
+## Usage Examples
+
+### ✅ Correct Usage
+```typescript
+import { Colors } from "@/constants/Colors";
+import InventoryHeader from "@/components/headers/InventoryHeader";
+import { useGameLists } from "@/hooks/useGameLists";
+import { GameCard } from "@/components/GameCard";
+import { auth } from "@/context/auth";
+```
+
+### ❌ Avoid Relative Paths
+```typescript
+// Don't use relative paths like this:
+import { Colors } from "../../constants/Colors";
+import InventoryHeader from "../../components/headers/InventoryHeader";
+```
+
+## Benefits
+
+1. **Cleaner imports**: No need for complex relative paths with multiple `../`
+2. **Easier refactoring**: Moving files doesn't break import paths
+3. **Better readability**: Clear indication of where files are located
+4. **Consistency**: All imports follow the same pattern
+
+## Common Import Patterns
+
+- Components: `@/components/ComponentName`
+- Hooks: `@/hooks/useHookName`
+- Types: `@/types/TypeName`
+- Constants: `@/constants/ConstantName`
+- Context: `@/context/ContextName`
+- Store: `@/store/StoreName`
+- Utils: `@/utils/UtilName`
+
+This rule applies to all TypeScript/JavaScript files in the savestateapp project.

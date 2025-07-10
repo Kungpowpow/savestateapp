@@ -1,0 +1,114 @@
+---
+description: When using expo-router for navigation
+alwaysApply: false
+---
+# Navigation Path Consistency
+
+## Shared Routes Navigation Pattern
+
+When navigating to any file in the shared routes folder:
+`app/(tabs)/(trending, inventory, search, activity, profile)`
+
+**ALWAYS use `useSegments()` to get the current tab segment:**
+
+```typescript
+import { useRouter, useSegments } from 'expo-router';
+
+const router = useRouter();
+const segments = useSegments();
+const currentSegment = segments[1]; // Gets the current tab segment
+
+// Correct pattern for shared routes
+router.push({
+  pathname: `/(tabs)/${currentSegment}/rest-of-route-name` as any,
+  params: { /* your params */ }
+});
+```
+
+## Examples
+
+### Add to List Navigation
+```typescript
+const segments = useSegments();
+const currentSegment = segments[1];
+
+router.push({
+  pathname: `/(tabs)/${currentSegment}/add-to-list` as any,
+  params: { gameId: id, gameTitle: title }
+});
+```
+
+### Game Details Navigation
+```typescript
+const segments = useSegments();
+const currentSegment = segments[1];
+
+router.push({
+  pathname: `/(tabs)/${currentSegment}/(game)/[id]` as any,
+  params: { id: game.igdb_id }
+});
+```
+
+## Key Files
+- [GameCard.tsx](mdc:savestateapp/components/GameCard.tsx) - Example of proper segment-based navigation
+- [add-to-list.tsx](mdc:savestateapp/app/(tabs)/(trending, inventory, search, activity, profile)/add-to-list.tsx) - Shared route implementation
+
+## Common Mistakes to Avoid
+1. Hardcoding tab names in navigation paths
+2. Using `/(tabs)/(trending, inventory, search, activity, profile)/` directly instead of dynamic segments
+3. Not using `useSegments()` for dynamic navigation
+# Navigation Path Consistency
+
+## Shared Routes Navigation Pattern
+
+When navigating to any file in the shared routes folder:
+`app/(tabs)/(trending, inventory, search, activity, profile)`
+
+**ALWAYS use `useSegments()` to get the current tab segment:**
+
+```typescript
+import { useRouter, useSegments } from 'expo-router';
+
+const router = useRouter();
+const segments = useSegments();
+const currentSegment = segments[1]; // Gets the current tab segment
+
+// Correct pattern for shared routes
+router.push({
+  pathname: `/(tabs)/${currentSegment}/rest-of-route-name` as any,
+  params: { /* your params */ }
+});
+```
+
+## Examples
+
+### Add to List Navigation
+```typescript
+const segments = useSegments();
+const currentSegment = segments[1];
+
+router.push({
+  pathname: `/(tabs)/${currentSegment}/add-to-list` as any,
+  params: { gameId: id, gameTitle: title }
+});
+```
+
+### Game Details Navigation
+```typescript
+const segments = useSegments();
+const currentSegment = segments[1];
+
+router.push({
+  pathname: `/(tabs)/${currentSegment}/(game)/[id]` as any,
+  params: { id: game.igdb_id }
+});
+```
+
+## Key Files
+- [GameCard.tsx](mdc:savestateapp/components/GameCard.tsx) - Example of proper segment-based navigation
+- [add-to-list.tsx](mdc:savestateapp/app/(tabs)/(trending, inventory, search, activity, profile)/add-to-list.tsx) - Shared route implementation
+
+## Common Mistakes to Avoid
+1. Hardcoding tab names in navigation paths
+2. Using `/(tabs)/(trending, inventory, search, activity, profile)/` directly instead of dynamic segments
+3. Not using `useSegments()` for dynamic navigation

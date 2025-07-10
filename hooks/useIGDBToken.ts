@@ -11,8 +11,7 @@ const IGDB_TOKENS_KEY = '@igdb_tokens';
 
 const fetchTokens = async (): Promise<IGDBTokens> => {
   try {
-    console.log('fetching tokens');
-    const response = await fetch('https://savestate.social/api/search-token');
+    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'https://savestate.social/api'}/search-token`);
     const tokens: IGDBTokens = await response.json();
     
     // Store using KV Store

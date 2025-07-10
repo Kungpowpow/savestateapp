@@ -1,0 +1,170 @@
+description: SaveState - Expo-reactnative rules
+globs:
+alwaysApply: true
+---
+
+# SaveState App Development Guidelines
+
+You are an expert in JavaScript, React Native, Expo, and Mobile UI development working on the **savestateapp** project.
+
+## Project Architecture
+
+**savestateapp** is the **frontend mobile application** built with:
+- React Native + Expo
+- TypeScript
+- Expo Router for navigation
+
+**SaveState** (in the `SaveState/` directory) is the **backend API** built with:
+- Laravel 11.0+
+- PHP 8.3+
+- RESTful API endpoints
+
+### Frontend-Backend Relationship
+- The frontend consumes the Laravel API endpoints
+- API responses should be used to generate TypeScript interfaces and types
+- The backend only needs to know that a React Native frontend will consume its endpoints
+- Use consistent API response structures to enable type generation
+
+## Code Style and Structure
+
+### Write Clean, Readable Code
+- Ensure your code is easy to read and understand
+- Use descriptive names for variables and functions
+- Follow consistent formatting and indentation
+
+### Use Functional Components
+- Prefer functional components with hooks (useState, useEffect, etc.) over class components
+- Leverage React hooks for state management and side effects
+
+### Component Modularity
+- Break down components into smaller, reusable pieces
+- Keep components focused on a single responsibility
+- Create reusable UI components in the `components/` directory
+
+### Organize Files by Feature
+- Group related components, hooks, and styles into feature-based directories
+- Follow the existing structure: `app/(tabs)/`, `components/`, `hooks/`, `store/`, `types/`
+
+## Naming Conventions
+
+### Variables and Functions
+- Use camelCase for variables and functions (e.g., `isFetchingData`, `handleUserInput`)
+- Use descriptive names that clearly indicate purpose
+
+### Components
+- Use PascalCase for component names (e.g., `UserProfile`, `ChatScreen`)
+- Match component names to their file names
+
+### Directories
+- Use lowercase and hyphenated names for directories (e.g., `user-profile`, `chat-screen`)
+- Follow the existing pattern in the app directory structure
+
+## JavaScript Usage
+
+### Avoid Global Variables
+- Minimize the use of global variables to prevent unintended side effects
+- Use local state and props for data flow
+
+### Use ES6+ Features
+- Leverage ES6+ features like arrow functions, destructuring, and template literals
+- Write concise, modern JavaScript code
+
+### TypeScript Integration
+- The project uses TypeScript - leverage type safety
+- Define proper interfaces and types in the `types/` directory
+- Use proper typing for props, state, and function parameters
+
+## Performance Optimization
+
+### Optimize State Management
+- Avoid unnecessary state updates
+- Use local state only when needed
+- Leverage the existing stores: `igdbStore.ts`, `inventoryStore.ts`
+
+### Memoization
+- Use React.memo() for functional components to prevent unnecessary re-renders
+- Implement useMemo and useCallback for expensive computations
+
+### FlatList Optimization
+- Optimize FlatList with props like `removeClippedSubviews`, `maxToRenderPerBatch`, and `windowSize`
+- Use `keyExtractor` for proper item identification
+
+### Avoid Anonymous Functions
+- Refrain from using anonymous functions in renderItem or event handlers
+- Define handlers outside render or use useCallback to prevent re-renders
+
+## UI and Styling
+
+### Consistent Styling
+- Use StyleSheet.create() for consistent styling
+- Follow the existing color scheme defined in `constants/Colors.ts`
+- Use the existing components like `CustomTabBar.tsx`, `GameHeader.tsx`, `InventoryHeader.tsx`
+
+### Responsive Design
+- Ensure your design adapts to various screen sizes and orientations
+- Consider using responsive units and libraries like react-native-responsive-screen
+- Test on different device sizes
+
+### Optimize Image Handling
+- Use optimized image libraries like react-native-fast-image
+- Handle images efficiently to prevent memory issues
+
+## Expo Router Integration
+
+### File-Based Routing
+- Use Expo Router for file-based routing as implemented in the `app/` directory
+- Follow the existing structure with `(tabs)`, `(auth)`, and dynamic routes like `[id].tsx`
+- Leverage the `_layout.tsx` files for navigation structure
+
+### Navigation Best Practices
+- Use the existing tab structure: trending, inventory, search, activity, profile
+- Implement proper navigation guards and authentication flows
+- Handle deep linking appropriately
+
+## Project-Specific Guidelines
+
+### Authentication
+- Use the existing auth context in `context/auth.tsx`
+- Follow the authentication flow in `app/(auth)/` directory
+- Integrate with Supabase as configured in `lib/supabase.ts`
+
+### Data Management
+- Use the existing hooks: `useGameLists.ts`, `useGameRating.ts`, `useGameReview.ts`, `useIGDBToken.ts`
+- Follow the store patterns established in the `store/` directory
+- Integrate with the IGDB API for game data
+
+### API Integration
+- Consume Laravel API endpoints from the SaveState backend
+- Generate TypeScript interfaces from API response structures
+- Use consistent error handling for API calls
+- Implement proper loading states and error boundaries for API requests
+- Store API types in the `types/` directory for reuse across components
+
+### File Structure
+- Follow the established directory structure
+- Place new components in the `components/` directory
+- Add new hooks to the `hooks/` directory
+- Define types in the `types/` directory
+
+## Best Practices
+
+### Follow React Native's Threading Model
+- Be aware of how React Native handles threading
+- Ensure smooth UI performance by avoiding blocking operations on the main thread
+
+### Use Expo Tools
+- Utilize Expo's EAS Build and Updates for continuous deployment
+- Implement Over-The-Air (OTA) updates when appropriate
+- Use Expo's development tools for debugging
+
+### Error Handling
+- Implement proper error boundaries
+- Handle API errors gracefully
+- Provide meaningful error messages to users
+
+### Testing
+- Write unit tests for critical business logic
+- Test components in isolation
+- Ensure proper error handling and edge cases
+
+Remember to always consider the existing codebase structure and patterns when making changes to maintain consistency across the savestateapp project.

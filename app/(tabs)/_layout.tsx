@@ -1,10 +1,10 @@
 import { Tabs, useRouter } from 'expo-router';
-import { useAuth } from '../../context/auth';
-import CustomTabBar from '../components/CustomTabBar';
-import { Colors } from '../../constants/Colors';
+import { useAuth } from '@/context/auth';
+import CustomTabBar from '@/components/CustomTabBar';
+import { Colors } from '@/constants/Colors';
 
 export default function TabsLayout() {
-  const { session } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   return (
@@ -32,7 +32,7 @@ export default function TabsLayout() {
         }}
         listeners={{
           tabPress: (e) => {
-            if (!session) {
+            if (!user) {
               e.preventDefault();
               router.push('/(auth)/login');
             }
@@ -52,7 +52,7 @@ export default function TabsLayout() {
         }}
         listeners={{
           tabPress: (e) => {
-            if (!session) {
+            if (!user) {
               e.preventDefault();
               router.push('/(auth)/login');
             }
@@ -66,7 +66,7 @@ export default function TabsLayout() {
         }}
         listeners={{
           tabPress: (e) => {
-            if (!session) {
+            if (!user) {
               e.preventDefault();
               router.push('/(auth)/login');
             }

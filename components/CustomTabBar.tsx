@@ -1,6 +1,6 @@
 import { View, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/Colors';
+import { Colors } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
