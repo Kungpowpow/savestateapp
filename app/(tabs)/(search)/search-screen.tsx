@@ -9,24 +9,8 @@ import { useSearch } from '@/context/search';
 import { useFollowing } from '@/context/following';
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback } from 'react';
-
-interface Game {
-  id: number;
-  name: string;
-  cover?: {
-    url: string;
-  };
-  rating?: number;
-}
-
-interface User {
-  id: number;
-  name: string;
-  username: string;
-  slug: string;
-  created_at: string;
-  isFollowing: boolean;
-}
+import { Game } from '@/types/game';
+import { User } from '@/types/user';
 
 export default function SearchScreen() {
   const { 

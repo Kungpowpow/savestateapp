@@ -6,33 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserProfile, toggleFollowUser } from '@/lib/api';
 import { useAuth } from '@/context/auth';
 import { useFollowing } from '@/context/following';
-
-interface UserStats {
-  total_reviews: number;
-  quick_ratings: number;
-  average_rating: number;
-  total_lists: number;
-  collection_size: number;
-  wishlist_size: number;
-  most_played_genres: any[];
-  total_activities: number;
-  followers_count: number;
-  following_count: number;
-}
-
-interface UserProfile {
-  id: number;
-  name: string;
-  username: string;
-  slug: string;
-  created_at: string;
-}
-
-interface ProfileData {
-  user: UserProfile;
-  stats: UserStats;
-  is_following: boolean;
-}
+import { UserStats, UserProfile, ProfileData } from '@/types/user';
 
 export default function UserProfileScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();

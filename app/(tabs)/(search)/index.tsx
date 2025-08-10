@@ -4,31 +4,7 @@ import { Colors } from '@/constants/Colors';
 import { Link } from 'expo-router';
 import { useIGDBToken } from '@/hooks/useIGDBToken';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Game {
-  id: number;
-  name: string;
-  cover?: {
-    url: string;
-  };
-  rating?: number;
-  first_release_date?: number;
-}
-
-interface GameCategory {
-  title: string;
-  subtitle: string;
-  icon: string;
-  games: Game[];
-  loading: boolean;
-}
-
-interface PopularityPrimitive {
-  id: number;
-  game_id: number;
-  popularity_type: number;
-  value: number;
-}
+import { Game, GameCategory, PopularityPrimitive } from '@/types/game';
 
 export default function SearchIndex() {
   const { data: tokens, refetch: refetchTokens } = useIGDBToken();
