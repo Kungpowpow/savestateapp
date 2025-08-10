@@ -23,20 +23,27 @@ interface GameCategory {
   loading: boolean;
 }
 
+interface PopularityPrimitive {
+  id: number;
+  game_id: number;
+  popularity_type: number;
+  value: number;
+}
+
 export default function SearchIndex() {
   const { data: tokens, refetch: refetchTokens } = useIGDBToken();
   const [categories, setCategories] = useState<GameCategory[]>([
     {
-      title: 'Trending Games',
-      subtitle: 'What\'s hot right now',
-      icon: 'trending-up',
+      title: 'Popular Games',
+      subtitle: 'Most popular right now',
+      icon: 'star',
       games: [],
       loading: true,
     },
     {
-      title: 'Popular This Week',
-      subtitle: 'Most played games',
-      icon: 'star',
+      title: 'Upcoming Games',
+      subtitle: 'Coming soon',
+      icon: 'calendar',
       games: [],
       loading: true,
     },
@@ -48,44 +55,82 @@ export default function SearchIndex() {
       loading: true,
     },
     {
-      title: 'Recently Released',
-      subtitle: 'New games this month',
-      icon: 'calendar',
+      title: 'Trending Games',
+      subtitle: 'What\'s hot right now',
+      icon: 'trending-up',
       games: [],
       loading: true,
     },
   ]);
 
-  const fetchGames = async (categoryIndex: number, query: string) => {
+  const fetchPopularGames = async (categoryIndex: number, popularityType: number) => {
     if (!tokens) return;
     
     try {
-      const response = await fetch('https://api.igdb.com/v4/games', {
+      // Step 1: Fetch popularity primitives to get game IDs
+      const popularityResponse = await fetch('https://api.igdb.com/v4/popularity_primitives', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Client-ID': tokens.client_id,
           'Authorization': `Bearer ${tokens.access_token}`,
         },
-        body: query
+        body: `fields game_id, value, popularity_type; sort value desc; limit 10; where popularity_type = ${popularityType};`
       });
       
-      if (!response.ok) {
-        if (response.status === 401) {
+      if (!popularityResponse.ok) {
+        if (popularityResponse.status === 401) {
           await refetchTokens();
           return;
         }
-        throw new Error('Failed to fetch games');
+        throw new Error('Failed to fetch popularity data');
       }
       
-      const data = await response.json();
+      const popularityData: PopularityPrimitive[] = await popularityResponse.json();
+      
+      if (popularityData.length === 0) {
+        setCategories(prev => prev.map((cat, index) => 
+          index === categoryIndex 
+            ? { ...cat, games: [], loading: false }
+            : cat
+        ));
+        return;
+      }
+      
+      // Extract game IDs
+      const gameIds = popularityData.map(item => item.game_id);
+      const gameIdsString = gameIds.join(',');
+      
+      // Step 2: Fetch actual game details
+      const gamesResponse = await fetch('https://api.igdb.com/v4/games', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Client-ID': tokens.client_id,
+          'Authorization': `Bearer ${tokens.access_token}`,
+        },
+        body: `fields name,rating,cover.url,first_release_date; where id = (${gameIdsString}) & version_parent = null;`
+      });
+      
+      if (!gamesResponse.ok) {
+        throw new Error('Failed to fetch games details');
+      }
+      
+      const gamesData: Game[] = await gamesResponse.json();
+      
+      // Sort games by their popularity order
+      const sortedGames = gameIds.map(id => 
+        gamesData.find(game => game.id === id)
+      ).filter(game => game !== undefined) as Game[];
+      
       setCategories(prev => prev.map((cat, index) => 
         index === categoryIndex 
-          ? { ...cat, games: data, loading: false }
+          ? { ...cat, games: sortedGames, loading: false }
           : cat
       ));
+      
     } catch (error) {
-      console.error('Error fetching games:', error);
+      console.error('Error fetching popular games:', error);
       setCategories(prev => prev.map((cat, index) => 
         index === categoryIndex 
           ? { ...cat, loading: false }
@@ -96,20 +141,23 @@ export default function SearchIndex() {
 
   useEffect(() => {
     if (tokens) {
-      // Trending games (based on rating and popularity)
-      fetchGames(0, 'fields name,rating,cover.url,first_release_date; where version_parent = null & rating != null; sort rating desc; limit 10;');
+      // Popular games (popularity_type = 5)
+      fetchPopularGames(0, 5);
       
-      // Popular this week (based on release date and rating)
-      const now = Math.floor(Date.now() / 1000);
-      const weekAgo = now - (7 * 24 * 60 * 60);
-      fetchGames(1, `fields name,rating,cover.url,first_release_date; where version_parent = null & first_release_date >= ${weekAgo}; sort rating desc; limit 10;`);
+      // Upcoming games (popularity_type = 10)
+      fetchPopularGames(1, 10);
+
+      fetchPopularGames(2, 1);
+
+      fetchPopularGames(3, 3);
       
-      // Top rated games
-      fetchGames(2, 'fields name,rating,cover.url,first_release_date; where version_parent = null & rating != null; sort rating desc; limit 10;');
-      
-      // Recently released (last 30 days)
-      const monthAgo = now - (30 * 24 * 60 * 60);
-      fetchGames(3, `fields name,rating,cover.url,first_release_date; where version_parent = null & first_release_date >= ${monthAgo}; sort first_release_date desc; limit 10;`);
+      // Top rated and trending games will be empty for now
+      // Remove old fetchGames calls as requested
+      setCategories(prev => prev.map((cat, index) => 
+        index === 2 || index === 3 
+          ? { ...cat, games: [], loading: false }
+          : cat
+      ));
     }
   }, [tokens]);
 
