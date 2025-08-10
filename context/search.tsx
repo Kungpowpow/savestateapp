@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
+import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction, useRef } from 'react';
+import { TextInput } from 'react-native';
 import { useIGDBToken } from '@/hooks/useIGDBToken';
 import { searchUsers } from '@/lib/api';
 import { useFollowing } from './following';
@@ -16,6 +17,8 @@ interface SearchContextType {
   setLoading: (loading: boolean) => void;
   handleSearch: () => void;
   handleClear: () => void;
+  searchInputRef: React.RefObject<TextInput>;
+  focusSearchInput: () => void;
 }
 
 interface Game {
@@ -46,6 +49,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const { data: tokens, refetch: refetchTokens } = useIGDBToken();
   const { setFollowing } = useFollowing();
+  const searchInputRef = useRef<TextInput>(null);
 
   const searchGames = async (query: string) => {
     if (!query.trim() || !tokens) return;
@@ -107,6 +111,12 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     setUsers([]);
   };
 
+  const focusSearchInput = () => {
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
   const value = {
     searchQuery,
     setSearchQuery,
@@ -120,6 +130,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     setLoading,
     handleSearch,
     handleClear,
+    searchInputRef,
+    focusSearchInput,
   };
 
   return (

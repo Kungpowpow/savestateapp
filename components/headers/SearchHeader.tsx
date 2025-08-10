@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { View, StyleSheet, TextInput, TouchableOpacity, Pressable, Text, SafeAreaView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,8 +26,7 @@ export default function SearchHeader({
   onCancel,
   showCancelButton = true,
 }: SearchHeaderProps) {
-  const inputRef = useRef<TextInput>(null);
-  const { handleSearch: contextHandleSearch } = useSearch();
+  const { handleSearch: contextHandleSearch, searchInputRef } = useSearch();
 
   const handleSearch = () => {
     contextHandleSearch();
@@ -44,7 +43,7 @@ export default function SearchHeader({
           <View style={styles.searchBarContainer}>
             <Ionicons name="search" size={20} color={Colors.color5 + 'AA'} style={styles.searchIcon} />
             <TextInput
-              ref={inputRef}
+              ref={searchInputRef}
               style={styles.searchInput}
               placeholder={`Search ${activeTab}...`}
               placeholderTextColor={Colors.color5 + '80'}

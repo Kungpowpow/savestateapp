@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Text, View, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { Link, router } from 'expo-router';
+import { Link, router, useFocusEffect } from 'expo-router';
 import { toggleFollowUser } from '@/lib/api';
 import UserCard from '@/components/UserCard';
 import { useAuth } from '@/context/auth';
 import { useSearch } from '@/context/search';
 import { useFollowing } from '@/context/following';
 import { Ionicons } from '@expo/vector-icons';
+import { useCallback } from 'react';
 
 interface Game {
   id: number;
@@ -34,12 +35,20 @@ export default function SearchScreen() {
     games, 
     users, 
     loading,
-    setUsers
+    setUsers,
+    focusSearchInput
   } = useSearch();
   
   const [followLoading, setFollowLoading] = useState<number | null>(null);
   const { user: currentUser } = useAuth();
   const { toggleFollowing, isFollowing: isFollowingUser } = useFollowing();
+
+  // Auto-focus search input when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      focusSearchInput();
+    }, [focusSearchInput])
+  );
 
   const handleToggleFollow = async (user: User) => {
     if (!currentUser) return;

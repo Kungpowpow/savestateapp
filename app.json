@@ -2,14 +2,18 @@
   "expo": {
     "name": "Save State",
     "slug": "save-state",
-    "version": "1.0.0",
+    "version": "1.0.002",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.ojiwan.savestate",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -37,6 +41,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "369ed91a-0031-4d2d-8a97-2fda1cb59ebe"
+      }
     }
   }
 }
