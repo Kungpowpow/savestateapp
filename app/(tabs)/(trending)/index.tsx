@@ -5,8 +5,10 @@ import { Link } from 'expo-router';
 import { useIGDBToken } from '@/hooks/useIGDBToken';
 import { Ionicons } from '@expo/vector-icons';
 import { Game, GameCategory, PopularityPrimitive } from '@/types/game';
+import { useTrendingStore } from '@/store/trendingStore';
 
-export default function TrendingScreen() {
+// Games component (current trending content)
+function GamesScreen() {
   const { data: tokens, refetch: refetchTokens } = useIGDBToken();
   const [categories, setCategories] = useState<GameCategory[]>([
     {
@@ -218,6 +220,50 @@ export default function TrendingScreen() {
       />
     </View>
   );
+}
+
+// Reviews component (placeholder)
+function ReviewsScreen() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.placeholderContainer}>
+        <Text style={styles.placeholderTitle}>Reviews Coming Soon</Text>
+        <Text style={styles.placeholderSubtitle}>Game reviews and ratings will appear here</Text>
+      </View>
+    </View>
+  );
+}
+
+// Lists component (placeholder)
+function ListsScreen() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.placeholderContainer}>
+        <Text style={styles.placeholderTitle}>Lists Coming Soon</Text>
+        <Text style={styles.placeholderSubtitle}>Trending game lists will appear here</Text>
+      </View>
+    </View>
+  );
+}
+
+// Main component with segmented control
+export default function TrendingScreen() {
+  const { selectedIndex } = useTrendingStore();
+
+  const renderContent = () => {
+    switch (selectedIndex) {
+      case 0:
+        return <GamesScreen />;
+      case 1:
+        return <ReviewsScreen />;
+      case 2:
+        return <ListsScreen />;
+      default:
+        return <GamesScreen />;
+    }
+  };
+
+  return renderContent();
 };
 
 const styles = StyleSheet.create({
@@ -339,5 +385,24 @@ const styles = StyleSheet.create({
   emptyText: {
     color: Colors.color5 + '60',
     fontSize: 14,
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  placeholderTitle: {
+    color: Colors.color5,
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  placeholderSubtitle: {
+    color: Colors.color5 + '80',
+    fontSize: 16,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });
