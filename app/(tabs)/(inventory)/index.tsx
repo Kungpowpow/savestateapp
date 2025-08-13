@@ -18,7 +18,7 @@ import React from 'react';
 //are these all the same database?
 //lists have their own item order. and metadata. Stored in profile.
 
-type ListType = 'collection' | 'wishlist' | 'lists' | 'stats';
+type ListType = 'collection' | 'wishlist'| 'backlog' | 'lists';
 
 export default function InventoryScreen() {
   const { userLists, getWishlistItems, getCollectionItems, getBacklogItems, getGameListItems } = useUserLists();
@@ -26,7 +26,7 @@ export default function InventoryScreen() {
   const { selectedIndex, setSelectedIndex } = useInventoryStore();
   const insets = useSafeAreaInsets();
 
-  const segments: ListType[] = ['collection', 'wishlist', 'lists', 'stats'];
+  const segments: ListType[] = ['collection', 'wishlist', 'backlog', 'lists'];
   const activeTab = segments[selectedIndex];
 
   const getItemsForTab = (tab: ListType) => {
@@ -36,9 +36,9 @@ export default function InventoryScreen() {
       case 'collection':
         return getCollectionItems();
       case 'lists':
-        return getBacklogItems(); // Using backlog for now, could be expanded
-      case 'stats':
-        return []; // Stats don't have items
+        return []; // Lists are handled separately
+      case 'backlog':
+        return getBacklogItems();
       default:
         return [];
     }
@@ -58,43 +58,15 @@ export default function InventoryScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateText}>
-        {activeTab === 'stats' 
-          ? 'No stats available yet'
-          : `No games in your ${activeTab} yet`
-        }
+        {`No games in your ${activeTab} yet`}
       </Text>
       <Text style={styles.emptyStateSubtext}>
-        {activeTab === 'stats' 
-          ? 'Start playing games to see your stats'
-          : 'Start adding games to see them here'
-        }
+        Start adding games to see them here
       </Text>
     </View>
   );
 
-  const renderStats = () => (
-    <View style={styles.statsContainer}>
-      <Text style={styles.statsTitle}>Your Gaming Stats</Text>
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{getWishlistItems().length}</Text>
-          <Text style={styles.statLabel}>Wishlist</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{getCollectionItems().length}</Text>
-          <Text style={styles.statLabel}>Collection</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{getBacklogItems().length}</Text>
-          <Text style={styles.statLabel}>Backlog</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{getGameListItems().length}</Text>
-          <Text style={styles.statLabel}>Custom Lists</Text>
-        </View>
-      </View>
-    </View>
-  );
+
 
   // Lists Section
   const renderListsSection = () => {
@@ -175,16 +147,9 @@ export default function InventoryScreen() {
   const currentItems = getItemsForTab(activeTab);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container]}>
       {/* Content */}
-      {activeTab === 'stats' ? (
-        <ScrollView 
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {renderStats()}
-        </ScrollView>
-      ) : activeTab === 'lists' ? (
+      {activeTab === 'lists' ? (
         renderListsSection()
       ) : (
         <FlatList
@@ -251,39 +216,7 @@ const styles = StyleSheet.create({
     color: Colors.color5 + '80',
     fontSize: 14,
   },
-  statsContainer: {
-    padding: 20,
-  },
-  statsTitle: {
-    color: Colors.color5,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    backgroundColor: Colors.color3,
-    borderRadius: 12,
-    padding: 20,
-    width: '48%',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  statNumber: {
-    color: Colors.color5,
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  statLabel: {
-    color: Colors.color5 + '80',
-    fontSize: 14,
-    fontWeight: '500',
-  },
+
   row: {
     justifyContent: 'space-between',
   },

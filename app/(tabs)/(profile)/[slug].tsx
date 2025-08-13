@@ -100,7 +100,7 @@ export default function UserProfileScreen() {
   const followingStatus = profileData ? isFollowingUser(profileData.user.id) : false;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Header */}
         <View style={styles.header}>
@@ -183,7 +183,7 @@ export default function UserProfileScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

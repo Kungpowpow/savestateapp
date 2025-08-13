@@ -54,7 +54,7 @@ export default function GameCard({ game, showRating = false, onPress }: GameCard
         {game.cover_url ? (
           <Image 
             source={{ 
-              uri: getCoverImage(game.cover_url, 'logo_med')
+              uri: getCoverImage(game.cover_url, 'cover_big')
             }} 
             style={styles.image}
             resizeMode="cover"
@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    // resizeMode: 'cover'
   },
   placeholderImage: {
     width: '100%',

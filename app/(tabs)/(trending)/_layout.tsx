@@ -19,9 +19,9 @@ export default function Layout() {
           header: () => <TrendingHeader />
         }} 
       />
-      <Stack.Screen name="games" options={{ headerShown: false }} />
-      <Stack.Screen name="reviews" options={{ headerShown: false }} />
-      <Stack.Screen name="lists" options={{ headerShown: false }} />
+      {/* <Stack.Screen name="games" options={{ headerShown: false }} /> */}
+      {/* <Stack.Screen name="reviews" options={{ headerShown: false }} /> */}
+      {/* <Stack.Screen name="lists" options={{ headerShown: false }} /> */}
       <Stack.Screen name="(game)/[id]" options={{ headerShown: false }} />
       <Stack.Screen 
         name="(game)/more" 

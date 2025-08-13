@@ -13,7 +13,7 @@ export default function InventoryHeader({
 }: InventoryHeaderProps) {
   const router = useRouter();
   const { selectedIndex, setSelectedIndex } = useInventoryStore();
-  const segments = ['Collection', 'Wishlist', 'Lists', 'Stats'];
+  const segments = ['Backlog', 'Collection', 'Wishlist', 'Lists'];
 
   return (
     <SafeAreaView style={styles.safeArea}>
